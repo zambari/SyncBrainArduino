@@ -1,5 +1,5 @@
 {
     "board": "arduino:avr:uno",
-    "sketch": "SyncBrainArudinoProject.ino",
+    "sketch": "TriggerBrainArduino.ino",
     "port": "/dev/cu.usbmodem1d1111"
 }

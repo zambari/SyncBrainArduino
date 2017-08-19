@@ -18,6 +18,10 @@
 // draw another screen, but delay screen refresh, to display notifications etc
 // hardware interfacing is based on lib4LCD with tiny tiny tweaks
 
+// all the heavy lifting is done via wrapping lib4LCD
+
+// http://www.stefanomanni.it/arduino/lib4lcd/
+
 
 class lib4LCD
 { // class definition has to be included here because I'm not importing is as a library - if the include worked it wouldnt have to be here
@@ -46,6 +50,11 @@ private:
   int nrows;        // Number of rows
   int ncols;        // Number of columns
 };
+
+
+
+
+
 lib4LCD lcdLib(16, 2, 13, 12, 11, 10, 9, 8); //LCD PINOUTS go here
 #pragma endregion lib4lcd
 class BUFFEREDLCD
@@ -58,7 +67,7 @@ unsigned long nextLcdRedrawTopTime;
   bool requestLCDredraw=false;
   char decBuffer[7] = {0,0,0,0,0,0,0};
   char decFill = '0';
-             
+public:
 
                 byte lcdBuffer[4][16] = {
                     {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '+', '-', '+', '-'},
@@ -72,7 +81,7 @@ unsigned long nextLcdRedrawTopTime;
                   
                     }
                     */
-                  public:
+               
                 bool dirtyFlag;
                 uint8_t lcdX; //carret
                 uint8_t lcdY;

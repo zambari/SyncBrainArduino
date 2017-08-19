@@ -1,4 +1,4 @@
-#include <TimerOne.h>
+
 #include <LinkedList.h>
 
 
@@ -29,11 +29,11 @@ void PlayIntroSequece()
 
 void setup()
 {
-    //Serial.begin(31250);                // MIDI Baud
-    Serial.begin(9600); // MIDI Baud
-      Serial.write("\nAwake after restart");
-      PlayIntroSequece();
-      delay(100);
+    Serial.begin(31250);                // MIDI Baud
+   //Serial.begin(9600); // MIDI Baud
+      Serial.write("\n+++\n\n");
+     /// PlayIntroSequece();
+     // delay(100);
     
     //if (debugPin>0) pinMode(debugPin,OUTPUT); // if debug >1, init debug led on pin (13?)
     // if (debugPin2>0) pinMode(debugPin2,OUTPUT); // if debug >1, init debug led on pin (13?)
@@ -42,18 +42,10 @@ void setup()
    shift.setupShift();
   nextLcdRedrawTopTime=millis()+LCD_REFRESH_FAST;
  nextLcdRedrawBottomTime=millis()+LCD_REFRESH_FAST;
- Timer1.initialize(1);
- Timer1.setPeriod(calculateIntervalMicroSecs(1000));
- Timer1.attachInterrupt(sendClockPulse);
 
-  //      Serial.write("\nSetting up pages\n");
 
-    //    delay(1000);
-      //  setUpPages();
-        //Serial.write("\nReloadingp pages\n");
-
-        //delay(1000);
-     //ReloadPage();
+     setUpPages();
+     ReloadPage();
         }
 
 
@@ -61,33 +53,23 @@ void checkSerial()
 {
    
   while (Serial.available()) 
-  { 
-      transmit.handleRpc(Serial.read());
+  { byte b=Serial.read();
+      transmit.handleRpc(b);
 
-  }
-  
-}
+        shift.statusledToggle();
+      for (int i = 0; i <pageCount; i++)
+      {
+        
+          pages->get(i)->OnSerial(b);
+        
 
-
-
-
-void sendClockPulse()
-{
-  
-  pulseCount++;
-  if (pulseCount >= MAXQNOTES)
-    pulseCount = 0;
-  if (pulseCount % 6 == 0)
-  {
-    quarterNote++;
-    for (int i = 0; i < pageCount; i++)
-    {
-      // if (pages[i]->wantsSteps)
-      //      pages[i]->AdvanceStep();
+      }
     }
-  }
-    Serial.write(MIDI_CLOCK);
+    //  transmit.handleCC(b);90
 }
+
+
+
 void checkIfLcdNeedsUpdate()
 {
    if (/*requestLCDredraw &&*/ millis()>nextLcdRedrawTopTime)
@@ -110,6 +92,6 @@ void loop()
 {
    checkSerial(); //*1000
     shift.checkInterface();
-   checkIfLcdNeedsUpdate();
+  checkIfLcdNeedsUpdate();
    
 }

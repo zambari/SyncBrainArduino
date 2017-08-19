@@ -12,7 +12,7 @@
 #define LED_SEL_3 8192
 #define LED_SEL_2 16386
 #define LED_SEL_1 32768
-#define CLOCKS_PER_BEAT 24
+
 #define PPQN 6
 #define MAXQNOTES 24 * 64
 #define LCD_REFRESH_LAZY 740

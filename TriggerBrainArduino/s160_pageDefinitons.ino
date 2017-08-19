@@ -1,20 +1,21 @@
 //#include <LinkedList.h>
 
 
-class Page_Sys : public Page
+class Page_Sys : public PageBase
 {
- //  PageSubSys1 a;
-  //    PageSubSys2 b;
-  //       PageSubSys3 c;
-
-
-
+   PageSubSys1 a;
+   PageSubSys1 b;
+   PageSubSys1 c;
 public:
+  
  void populateSubPages() override 
-{
-       // subPages->add(&a);
-      //   subPages->add(&b);
-       //     subPages->add(&c);
+{ 
+       subPages->add(&a);
+     subPages->add(&b);
+           subPages->add(&c);
+           subPageIndex = 0;
+           subPageCount = subPages->size();
+           activeSubPage = subPages->get(0);
 }
    void handleButton(int buttnr) override
     {
@@ -23,109 +24,38 @@ public:
             Serial.write("\n");
     }
  // void test() override { Serial.write('B'); }
-
-  char *getLabel() override
-  {
-    return "System";
-  }
+ char *GetLabel() override
+ {
+   return "SYS";
+ }
 };
 
-
-class B : public Page
-{
-                subB sb = subB();
-                subB sC = subB();
-
+class Page_Diag : public PageBase
+{   
+   SubPageDiag a;
+   
+   SubPageDiag b;
+   SubPageDiag c;
 public:
+
  void populateSubPages() override 
-{
-      //  subPages->add(&sb);
-      //  subPages->add(&sC);
-        subPages->add(&sb);
-        subPages->add(&sC);
+{  
+       subPages->add(&a);
+       subPages->add(&b);
+       subPages->add(&c);
+     
+           subPageIndex = 0;
+           subPageCount = subPages->size();
+           activeSubPage = subPages->get(0);
 }
    void handleButton(int buttnr) override
     {
-            Serial.write("\n Bn");
+            Serial.write("\n diagbt");
             Serial.write('0'+buttnr);
             Serial.write("\n");
     }
- // void test() override { Serial.write('B'); }
-
-  char *getLabel() override
+  char *GetLabel() override
   {
-    return "pageB";
-  }
-};
-
-class C : public Page
-{
-
-                        subC sb = subC();
-                        subC sC = subC();
-                        subB sB = subB();
-                        subB sB2 = subB();
-                        subD sD = subD();
-                        subD sD2 = subD();
-
-public:
-   void handleButton(int buttnr) override
-    {
-            Serial.write("\n Cn");
-            Serial.write('0'+buttnr);
-            Serial.write("\n");
-    }
- 
- void populateSubPages() override 
-{
-        subPages->add(&sb);
-        subPages->add(&sC);
-        subPages->add(&sB);
-        subPages->add(&sD);
-  }
-
-int ledCount;
-
-  bool handleRight() override
-    { 
-     
-
-      return setSubPage(subPageIndex+1);
-    }
-
-  bool handleLeft() override
-    {
-      return setSubPage(subPageIndex-1);
-    }
-  char *getLabel() override
-  {
-    return "MIGACZ ";
-  }
-};
-class D : public Page
-{
-                subD dd = subD();
-                subD dd2 = subD();
-
-public:
- void populateSubPages() override 
-{
-    subPages->add(&dd);
-    subPages->add(&dd2);
-    subPages->add(&dd);
-    subPages->add(&dd2);
-
-    subPages->add(&dd);
-    subPages->add(&dd2);
-  }
-   void handleButton(int buttnr) override
-    {
-            Serial.write("\n btn");
-            Serial.write('0'+buttnr);
-            Serial.write("\n");
-    }
-  char *getLabel() override
-  {
-    return "pageD";
+    return "Diag";
   }
 };

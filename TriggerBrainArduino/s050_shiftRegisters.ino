@@ -1,4 +1,4 @@
-#define SERIAL_LED_COUNT 16
+
 #define SERIAL_LED_OFFSET 15
 #define NO_DEMO_CONTENT
 
@@ -45,9 +45,16 @@
 #define SCAN_BUTTONS_EVERY 30
 #include <digitalWriteFast.h>
 // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  SETUP AND MAIN LOOP BELOW
-
+void OnNextPage();
+void OnPrevPage() ;
+void OnNavLeft();
+void OnNavRight();
+void OnPlayPress();
+void OnStopPress();
+void OnTempoUp();
+void OnTempoDn();
 //#ifndef NO_DEMO_CONTENT
-
+/*
 void OnNextPage(){}
 void OnPrevPage() {}
 void OnNavLeft(){}
@@ -56,26 +63,15 @@ void OnPlayPress(){}
 void OnStopPress(){}
 void OnTempoUp(){}
 void OnTempoDn(){}
-
+*/
 //#endif
-
-class Shift
-{ 
- 
-
-unsigned long nextButtonScan;
-unsigned long nextLedPush;
-int lastInterfaceRead=0;
-int interfaceRead;
-public:
-
-  bool leds[SERIAL_LED_COUNT];
-  
-  
-  //#ifndef NO_DEMO_CONTENT
-  
-    void OnButtonPress(uint8_t butNr)
-    { statusledToggle();
+void OnButtonPress(uint8_t butNr);
+bool leds[SERIAL_LED_COUNT];
+   /* void Shift::OnButtonPress(uint8_t butNr)
+    { 
+      
+      
+      statusledToggle();
       ledToggle(butNr);
     if (butNr<4)
     {
@@ -91,36 +87,36 @@ public:
           b[3]=0;
           transmit.TransmitBlob(b);
     }
-    
+    */
 
    // #endif
-    void statusledToggle()
+    void Shift::statusledToggle()
     {
       ledToggle(11);
     }
-    void ledBarSet(uint8_t nr,bool v)
+    void Shift::ledBarSet(uint8_t nr,bool v)
     {
       ledSet(LED_BAR_OFFSET-nr,v);
     }
-    bool ledBarGet(uint8_t nr)
+    bool Shift::ledBarGet(uint8_t nr)
     {
     return  ledGet(LED_BAR_OFFSET-nr);
     }
-    void statusledSet(bool v)
+    void Shift::statusledSet(bool v)
     {
       ledSet(11,v);
     }
-    void ledToggle(uint8_t ledNR)
+    void Shift::ledToggle(uint8_t ledNR)
     {
       ledNR=SERIAL_LED_OFFSET-ledNR;
       leds[ledNR]=!leds[ledNR];
     }
-    void ledSet(uint8_t ledNR,bool val)
+    void Shift::ledSet(uint8_t ledNR,bool val)
     { 
       ledNR=SERIAL_LED_OFFSET-ledNR;
       leds[ledNR]=val;
     }
-    bool ledGet(uint8_t ledNR)
+    bool Shift::ledGet(uint8_t ledNR)
     {
       
       
@@ -130,7 +126,7 @@ public:
 
 
 
-void checkInterface()
+void Shift::checkInterface()
 {   
       unsigned long currentMillis=millis();
       if (currentMillis>nextButtonScan)
@@ -157,8 +153,8 @@ void checkInterface()
 }
 
 
-void newButtonReadState()
-{ 
+void Shift::newButtonReadState()
+{  statusledToggle();
   /// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  STRETCH BUTTONS BEGIN
   ///lcdw
   if (interfaceRead & BUTTON_MENU_UP)
@@ -200,7 +196,7 @@ void newButtonReadState()
     OnButtonPress(7);
 }
 
-  void setupShift()
+  void Shift::setupShift()
   {  
     pinModeFast(interfaceDataPin,INPUT);
     pinModeFast(interfaceClockPin,OUTPUT);
@@ -208,8 +204,7 @@ void newButtonReadState()
     pinModeFast(interfaceShiftPin,OUTPUT);
 
   }
-};
-Shift shift;
+
 /*
 #ifndef NO_DEMO_CONTENT
 void setup() { 
