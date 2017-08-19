@@ -2,7 +2,7 @@
 #define SERIAL_LED_OFFSET 15
 #define NO_DEMO_CONTENT
 
-
+#define WRITE_COMMAND digitalWrite
 #define interfaceClockPin 2
 #define interfaceDataPin 4
 #define interfaceLedPin 5
@@ -43,7 +43,7 @@
 #define MASK_MSB 0xff00 
 #define MIDILED 4
 #define SCAN_BUTTONS_EVERY 30
-#include <digitalWriteFast.h>
+//#include <digitalWriteFast.h>
 // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  SETUP AND MAIN LOOP BELOW
 void OnNextPage();
 void OnPrevPage() ;
@@ -89,6 +89,50 @@ bool leds[SERIAL_LED_COUNT];
     }
     */
 
+   void Shift::newButtonReadState(unsigned int state)
+   {  statusledToggle();
+     /// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  STRETCH BUTTONS BEGIN
+     ///lcdw
+     Serial.print("\n buttons tatus ");
+     Serial.print(state);
+     if (state & BUTTON_MENU_UP)
+     { OnPrevPage();OnButtonPress(8);} 
+     if (state & BUTTON_MENU_DOWN)
+     {  OnNextPage();OnButtonPress(9);} 
+     if (state & BUTTON_MENU_LEFT)
+     { OnNavLeft();OnButtonPress(10);} 
+     if (state & BUTTON_MENU_RIGHT)
+     { OnNavRight();OnButtonPress(11);} 
+   
+     if (state & BUTTON_TEMPO_UP)
+     { OnTempoUp();OnButtonPress(12);} 
+     if (state & BUTTON_TEMPO_DOWN)
+      {   OnTempoDn();OnButtonPress(13); } 
+     if (state & BUTTON_TEMPO_PLAY)
+     {
+       OnButtonPress(14);
+       OnPlayPress();
+         }
+   
+     if (state & BUTTON_TEMPO_STOP)
+       OnStopPress();
+     if (state & BUTTON_SEL_1)
+       OnButtonPress(0);
+     if (state & BUTTON_SEL_2)
+       OnButtonPress(1);
+     if (state & BUTTON_SEL_3)
+       OnButtonPress(2);
+     if (state & BUTTON_SEL_4)
+       OnButtonPress(3);
+     if (state & BUTTON_SEL_5)
+       OnButtonPress(4);
+     if (state & BUTTON_SEL_6)
+       OnButtonPress(5);
+     if (state & BUTTON_SEL_7)
+       OnButtonPress(6);
+     if (state & BUTTON_SEL_8)
+       OnButtonPress(7);
+   }
    // #endif
     void Shift::statusledToggle()
     {
@@ -111,6 +155,12 @@ bool leds[SERIAL_LED_COUNT];
       ledNR=SERIAL_LED_OFFSET-ledNR;
       leds[ledNR]=!leds[ledNR];
     }
+    void Shift::ledReset()
+    {
+      for (int i=0;i<=8;i++)
+      leds[i]=false;
+      
+    }
     void Shift::ledSet(uint8_t ledNR,bool val)
     { 
       ledNR=SERIAL_LED_OFFSET-ledNR;
@@ -132,89 +182,40 @@ void Shift::checkInterface()
       if (currentMillis>nextButtonScan)
       {
       nextButtonScan=currentMillis+SCAN_BUTTONS_EVERY;
-      digitalWriteFast(interfaceShiftPin,LOW); 
-      digitalWriteFast(interfaceShiftPin,HIGH);
+      WRITE_COMMAND(interfaceShiftPin,LOW); 
+      delayMicroseconds(1);
+      WRITE_COMMAND(interfaceShiftPin,HIGH);
+      delayMicroseconds(1);
             interfaceRead=0; 
             for (int i=0;i<SERIAL_LED_COUNT;i++) { 
                 byte but1=digitalRead(interfaceDataPin);   
                 interfaceRead=(interfaceRead<<1)+but1;
                 if (leds[i])
-               {digitalWriteFast(interfaceLedPin,HIGH);}
+               {WRITE_COMMAND(interfaceLedPin,HIGH);}
                  else
-                {digitalWriteFast(interfaceLedPin,LOW);}
-                digitalWriteFast(interfaceClockPin,LOW);
-                digitalWriteFast(interfaceClockPin,HIGH);
+                {WRITE_COMMAND(interfaceLedPin,LOW);}
+                WRITE_COMMAND(interfaceClockPin,LOW);
+                WRITE_COMMAND(interfaceClockPin,HIGH);
            } 
           if (lastInterfaceRead!=interfaceRead)      // If keyboard has changed
-            { newButtonReadState();
+            { 
+              if (interfaceRead==0)
+              newButtonReadState(lastInterfaceRead);
               lastInterfaceRead=interfaceRead;
           }
       }
 }
 
 
-void Shift::newButtonReadState()
-{  statusledToggle();
-  /// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  STRETCH BUTTONS BEGIN
-  ///lcdw
-  if (interfaceRead & BUTTON_MENU_UP)
-  { OnPrevPage();OnButtonPress(8);} 
-  if (interfaceRead & BUTTON_MENU_DOWN)
-  {  OnNextPage();OnButtonPress(9);} 
-  if (interfaceRead & BUTTON_MENU_LEFT)
-  { OnNavLeft();OnButtonPress(10);} 
-  if (interfaceRead & BUTTON_MENU_RIGHT)
-  { OnNavRight();OnButtonPress(11);} 
-
-  if (interfaceRead & BUTTON_TEMPO_UP)
-  { OnTempoUp();OnButtonPress(12);} 
-  if (interfaceRead & BUTTON_TEMPO_DOWN)
-   {   OnTempoDn();OnButtonPress(13); } 
-  if (interfaceRead & BUTTON_TEMPO_PLAY)
-  {
-    OnButtonPress(14);
-    OnPlayPress();
-      }
-
-  if (interfaceRead & BUTTON_TEMPO_STOP)
-    OnStopPress();
-  if (interfaceRead & BUTTON_SEL_1)
-    OnButtonPress(0);
-  if (interfaceRead & BUTTON_SEL_2)
-    OnButtonPress(1);
-  if (interfaceRead & BUTTON_SEL_3)
-    OnButtonPress(2);
-  if (interfaceRead & BUTTON_SEL_4)
-    OnButtonPress(3);
-  if (interfaceRead & BUTTON_SEL_5)
-    OnButtonPress(4);
-  if (interfaceRead & BUTTON_SEL_6)
-    OnButtonPress(5);
-  if (interfaceRead & BUTTON_SEL_7)
-    OnButtonPress(6);
-  if (interfaceRead & BUTTON_SEL_8)
-    OnButtonPress(7);
-}
 
   void Shift::setupShift()
   {  
-    pinModeFast(interfaceDataPin,INPUT);
+   /* pinModeFast(interfaceDataPin,INPUT);
     pinModeFast(interfaceClockPin,OUTPUT);
     pinModeFast(interfaceLedPin,OUTPUT);
-    pinModeFast(interfaceShiftPin,OUTPUT);
-
+    pinModeFast(interfaceShiftPin,OUTPUT);*/
+    pinMode(interfaceDataPin,INPUT);
+    pinMode(interfaceClockPin,OUTPUT);
+    pinMode(interfaceLedPin,OUTPUT);
+    pinMode(interfaceShiftPin,OUTPUT);
   }
-
-/*
-#ifndef NO_DEMO_CONTENT
-void setup() { 
-   Serial.begin(9600);                
-   shift.setupShift();
-}
-
-
-void loop() {  
-         shift.checkInterface(); 
-                
-  } 
-#endif*/

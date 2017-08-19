@@ -50,7 +50,12 @@ public:
             
         }
     }
-  
+    void OnQuarterNote() override
+    {if (hasFocus)
+        activeSubPage->PrintContent();
+       // lcd.commitBuffer();
+
+    }
   void populateSubPages() override 
  {          wantsNoters=true;
              subPages->add(&v);

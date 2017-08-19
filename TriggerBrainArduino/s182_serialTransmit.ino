@@ -5,7 +5,7 @@ bool isRecieving=false;
 
 
 
-void SysexTransmit::TransmitBlob(char * s)
+void SerialTransmit::TransmitBlob(char * s)
 { 
     int counter=0;
     while(s[counter]!=0 && counter<BUFSIZE)
@@ -13,7 +13,7 @@ void SysexTransmit::TransmitBlob(char * s)
     TransmitBlob(s,counter);
 }
 
-void SysexTransmit::TransmitBlob(char * s, int blobByteCount)
+void SerialTransmit::TransmitBlob(char * s, int blobByteCount)
 { 
 /*
   Serial.print("blobtramit\ncount is ");
@@ -31,8 +31,7 @@ void SysexTransmit::TransmitBlob(char * s, int blobByteCount)
   Serial.print((char)SYSEX_END);
 }
 
-
-void  SysexTransmit::RunCommand(int cmd,  char* blobPointer, int decodedLen)   
+void  SerialTransmit::RunCommand(int cmd,  char* blobPointer, int decodedLen)   
 {      Serial.print("\n runCommand \n ");
         Serial.print(cmd);
         Serial.print("\n");
@@ -72,17 +71,18 @@ void  SysexTransmit::RunCommand(int cmd,  char* blobPointer, int decodedLen)
         }
 }
 void ReloadPage();
-void  SysexTransmit::OnRecieveBlob(  char* blobPointer, int decodedLen)        // DO USEFUL STUFF HERE
+void  SerialTransmit::OnRecieveBlob(  char* blobPointer, int decodedLen)        // DO USEFUL STUFF HERE
 {
   RunCommand(blobPointer[0],blobPointer+1,decodedLen-1);
 }
 void handleCC(byte value)
-{ bpm=value;
-  setTimerSpeed();
+{ 
+  clock.setBPM(value);
   ReloadPage();
 }
 byte cc_state;
-void SysexTransmit::handleCC(char thisChar)  // need to escape character
+
+void SerialTransmit::handleCC(char thisChar)  // need to escape character
 { 
 if (cc_state==0)
 {
@@ -102,7 +102,7 @@ if (cc_state==2)
 } else cc_state=0;
 }
 
-  bool SysexTransmit::handleRpc(char thisChar)  // need to escape character
+  bool SerialTransmit::handleRpc(char thisChar)  // need to escape character
   { 
     if (thisChar==(char)SYSEX_START)
         {

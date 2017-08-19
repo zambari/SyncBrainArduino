@@ -1,4 +1,4 @@
-
+#include <LinkedList.h>
 
 class PageBase: public Page
 {
@@ -30,7 +30,10 @@ public:
                 #pragma region semiPrivate
                 // list of subpages
                 #pragma endregion 
-        
+                virtual void OnGotFocus() { hasFocus=true; }
+                virtual void OnLostFocus(){ hasFocus=false; }
+
+
                 virtual void populateSubPages(){}
       
                   bool setSubPage(int i)
@@ -62,7 +65,11 @@ public:
                     }
                     virtual void handleButton(int buttnr)
                     {
-                      ;
+                      
                     }
 
 };
+
+Page *activePage;
+
+LinkedList<Page *> *pages = new LinkedList<Page *>();

@@ -12,15 +12,7 @@ void OnNavRight()
 {
 
 }*/
-void OnPlayPress()
-{
 
-}
-
-void OnStopPress()
-{
-
-}
 
 void ReloadSub()
 {        Serial.write("\n sub page redraw \n");
@@ -70,7 +62,8 @@ void ReloadSubFailed(int reason)
 
 }
 void DrawLayout()
-{
+{    
+  lcd.nextFullRedrawTime+=+LCD_REFRESH_LAZY;//
      lcd.clearLine(0);
         lcd.setCursor(0,0);
         lcd. printDigit(activePageIndex+1);
@@ -91,21 +84,23 @@ void ReloadPage()
         if (activePage==NULL) Serial.write("\nacive page null \n");
               if (&activePage==NULL) Serial.write("\nacive page &null \n");
     //byte currentSubPageIndex=activePage->subPageIndex;
-    Serial.write('\n');
-    Serial.write(activePageIndex);
-    Serial.write(" sdsioda s sdsd ");
+   // Serial.write('\n');
+   // Serial.write(activePageIndex);
+  //  Serial.write(" sdsioda s sdsd ");
   //  Serial.write(activePage->subPageIndex+'0');
-    Serial.write('\n');
+ //   Serial.write('\n');
 
     if (activePageIndex<0) activePageIndex=pageCount-1;
     if (activePageIndex>=pageCount) activePageIndex=0;
+    activePage->OnLostFocus();
+    activePage=pages->get(activePageIndex); //to robi blad
+    activePage->OnGotFocus();
 
-  activePage=pages->get(activePageIndex); //to robi blad
-
-
-     //activePage->setSubPage(currentSubPageIndex); // lets try to keep our subpage
-//  Serial.write("\n page redraw \n");
-        Serial.write(activePageIndex+'0');   
+    for (int i=0;i<SERIAL_LED_COUNT;i++)
+    {
+      shift.ledSet(i,i!=activePageIndex);
+    }
+/*
       lcd.clearLine(0);
         lcd.print("Page ");
         lcd.printDigit(activePageIndex+1);
@@ -128,10 +123,10 @@ void ReloadPage()
      //   lcd.commitBuffer();
         lcd.commitBuffer();
        nextLcdRedrawTopTime=millis()+LCD_REFRESH_LAZY; // but we do not refresh it for now
-        nextLcdRedrawBottomTime=millis()+LCD_REFRESH_LAZY*2;
+        nextLcdRedrawBottomTime=millis()+LCD_REFRESH_LAZY*2;*/
     DrawLayout();
-  //byte count=0;
-
+    lcd.commitBuffer();
+    //byte count=0;
         
         // instead :
         
@@ -151,31 +146,32 @@ void OnNextPage()
 void OnPrevPage()    {  
         activePageIndex--;
         if (activePageIndex <0)     activePageIndex =  pageCount-1 ;
-        Serial.write("\nPageUp\n");
+      //  Serial.write("\nPageUp\n");
      ReloadPage();
 }
 void OnNavLeft()
-{ Serial.write("\np prevsub \n");
-      if ( activePage->handleLeft())     ReloadSub();
+{ //Serial.write("\np prevsub \n");
+      if ( activePage->handleLeft())   DrawLayout();  //  ReloadSub();
   //       else ReloadSubFailed(1);
 }
 
 void OnNavRight()
 {   Serial.write("\nnext subpage\n");
-       if (   activePage->handleRight())   ReloadSub();
+       if (   activePage->handleRight())    DrawLayout();// ReloadSub();
    //      else ReloadSubFailed(2);
 }
-/*
+
 void OnPlayPress()
 {
-       Serial.write("\nplay\n"); 
+
+       Serial.write(0xFA); 
 }
 
 void OnStopPress()
 {  
-      Serial.write("\nstip\n");
+  Serial.write(0xFA); 
 }
-*/
+
 void OnTempoUp()
 {  
 Serial.write("\nDn\n");      
@@ -187,6 +183,6 @@ void OnTempoDn()
 }
 void OnButtonPress(uint8_t butNr)
 {
-    activePage->handleButton(butNr);
+    activePage->OnButtonPress(butNr);
    
 }

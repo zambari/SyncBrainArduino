@@ -29,25 +29,72 @@ void PlayIntroSequece()
 
 void setup()
 {
-    Serial.begin(31250);                // MIDI Baud
-   //Serial.begin(9600); // MIDI Baud
-      Serial.write("\n+++\n\n");
-     /// PlayIntroSequece();
-     // delay(100);
     
-    //if (debugPin>0) pinMode(debugPin,OUTPUT); // if debug >1, init debug led on pin (13?)
-    // if (debugPin2>0) pinMode(debugPin2,OUTPUT); // if debug >1, init debug led on pin (13?)
-      
-     delay(100);
-   shift.setupShift();
-  nextLcdRedrawTopTime=millis()+LCD_REFRESH_FAST;
- nextLcdRedrawBottomTime=millis()+LCD_REFRESH_FAST;
+    setUpPages();
+    
+    
+    
+    
+    /*
+#ifdef USE_MIDI
+    Serial.begin(BAUD_MIDI);                // MIDI Baud
+#else
+Serial.begin(BAUD_USART);       
+#endif*/
+   // Serial.begin(9600); // MIDI Baud
+   //   Serial.write("\n+++\n\n");
+     /// PlayIntroSequece();
+     //Serial.begin(38400);
+     Serial.begin(31250);
+     //  Set MIDI baud rate:
+  //   Serial1.begin(31250);
 
 
-     setUpPages();
-     ReloadPage();
+        delay(100);
+        shift.setupShift();
+        nextLcdRedrawTopTime=millis()+LCD_REFRESH_FAST;
+        nextLcdRedrawBottomTime=millis()+LCD_REFRESH_FAST;
+
+
+        ReloadPage();
+}
+bool pulse;
+void sendClockPulse()
+{
+      pulse=true;
+}
+void _sendClockPulse()
+{
+      pulse=false;
+      clockCounter++;
+      if (clockCounter<clockDivisor)
+      {
+          return;
+      }  clockCounter=0;
+        pulseCount++;
+
+        #ifdef USE_MIDI
+        Serial.write(MIDI_CLOCK);
+        //Serial.write((int)0x90);
+        //Serial.write((int)0x20);
+        //Serial.write((int)0x40);
+          //Serial.write(MIDI_CLOCK);
+          //Serial.write((char)0x01);
+          //Serial.write((char)0x01);
+      #endif
+        if (haltUpdates) return;
+        if (pulseCount >= MAXQNOTES)
+          pulseCount = 0;
+         // for (int i = 0; i < pageCount; i++)
+        //    pages->get(i)->OnClockPulse();
+        if (pulseCount % 6 == 0)
+        {
+          quarterNote++;
+          for (int i = 0; i < pageCount; i++)
+          pages->get(i)->OnQuarterNote();
         }
-
+        
+}
 
 void checkSerial()
 {
@@ -57,41 +104,26 @@ void checkSerial()
       transmit.handleRpc(b);
 
         shift.statusledToggle();
-      for (int i = 0; i <pageCount; i++)
-      {
-        
-          pages->get(i)->OnSerial(b);
-        
-
-      }
+       //  for (int i = 0; i <pageCount; i++)
+       //   pages->get(i)->OnSerial(b);
     }
     //  transmit.handleCC(b);90
 }
 
 
 
-void checkIfLcdNeedsUpdate()
-{
-   if (/*requestLCDredraw &&*/ millis()>nextLcdRedrawTopTime)
-    {
-     nextLcdRedrawTopTime=millis()+LCD_REFRESH_LAZY;
-     lcd.commitBufferTop();
-     requestLCDredraw=false;
-    }
-   if (/*requestLCDredraw &&*/ millis()>nextLcdRedrawBottomTime)
-    {
-     nextLcdRedrawBottomTime=millis()+LCD_REFRESH_FAST;
-     lcd.commitBufferBottom();
-     requestLCDredraw=false;
-    }
-  
-    
-}
 long unsigned lastMillis;
 void loop()
 {
+ if (pulse) _sendClockPulse();
+  unsigned long m1=millis();
    checkSerial(); //*1000
     shift.checkInterface();
-  checkIfLcdNeedsUpdate();
-   
+    if (pulse) _sendClockPulse();
+  lcd.checkIfNeedsUpdate();
+  unsigned long m2=millis();
+  int delta=m2-m1;
+  //cd.setCursor(0,0);
+  //lcd.printDec(delta,4);
+  //lcd.commitBuffer();
 }

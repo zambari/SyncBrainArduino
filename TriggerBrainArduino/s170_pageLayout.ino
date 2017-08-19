@@ -1,9 +1,6 @@
 
 
-#include <LinkedList.h>
-Page *activePage;
 
-LinkedList<Page *> *pages = new LinkedList<Page *>();
 Page_Sys a = Page_Sys();
 Page_Diag b = Page_Diag();
 

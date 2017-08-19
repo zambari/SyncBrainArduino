@@ -10,3 +10,5 @@ void Restart() // Restarts program from beginning but does not reset the periphe
 } 
 
 int bpm=80;
+int clockDivisor=18 ;
+int clockCounter;

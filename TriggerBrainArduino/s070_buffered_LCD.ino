@@ -1,6 +1,6 @@
 
-#define LCD_REFRESH_LAZY 740
-#define LCD_REFRESH_FAST 140
+#define LCD_REFRESH_LAZY 340
+#define LCD_REFRESH_FAST 90
 
 
 
@@ -56,10 +56,12 @@ private:
 
 
 lib4LCD lcdLib(16, 2, 13, 12, 11, 10, 9, 8); //LCD PINOUTS go here
-#pragma endregion lib4lcd
-class BUFFEREDLCD
+
+/*
+//class BUFFEREDLCD
 {
-  #pragma endregion 
+
+  
 private:
   
 unsigned long nextLcdRedrawBottomTime;
@@ -80,26 +82,23 @@ public:
                       if (lcdX>=16) return;
                   
                     }
-                    */
+                  
                
                 bool dirtyFlag;
                 uint8_t lcdX; //carret
                 uint8_t lcdY;
-
-                void BUFFEREDLCD::setCursor(uint8_t x)
-                {
-                  lcdX = x;
-                }
+*/
+               // void BUFFEREDLCD::setCursor(uint8_t x)
+              //  {
+              //    lcdX = x;
+             //   }
 
                 void BUFFEREDLCD::setCursor(uint8_t x, uint8_t y)
                 {
                   lcdX = x;
                   lcdY = y;
                 }
-#pragma endregion 
-#pragma region writeCommands
-    
-                void printTo(byte x, byte y, char printString[])
+                void BUFFEREDLCD::printTo(byte x, byte y, char printString[])
                 {
                   byte i = 0;
                   while (printString[i]) // 0 terminated string
@@ -111,25 +110,15 @@ public:
                   lcdY = y;
                     dirtyFlag=true;
                 }
-              /*void print(char c)
-                {
-                  wr*ite( c);
-                }*/
-    void writeWrapping(char c)
-    {
-    if (lcdX>=16) lcdX=0;;
-       lcdBuffer[lcdY][lcdX] = c; // przepisujemy do matrycy bufora
-            lcdX = lcdX + 1;
-    }
-                void setDirty()
+                void BUFFEREDLCD::setDirty()
                 {
                   dirtyFlag=true;
                 }  
-                void print(char print)
+                void BUFFEREDLCD::print(char print)
                 {
                   lcdBuffer[lcdY][lcdX ++] = print; 
                 }
-                void print(char * printString)
+                void BUFFEREDLCD::print(char * printString)
                 {
                   byte i = 0;
                   while (printString[i]&&(lcdX + i<16)) // 0 terminated string
@@ -138,14 +127,13 @@ public:
                     i++;
                   }
                   lcdX = lcdX + i;
-                 // if (lcd)
                   if (lcdX>=16)
                   { lcdX=0;
                   }
                   dirtyFlag=true;
                 }
 
-                void printCustom(byte znak)
+                void  BUFFEREDLCD::printCustom(byte znak)
                 {
 
                   lcdBuffer[lcdY][lcdX] = znak;
@@ -153,8 +141,9 @@ public:
                   lcdX++;
                 }
 
-                void clearLine(byte line)
+                void  BUFFEREDLCD::clearLine(byte line)
                 {
+                  dirtyFlag=true;
                   lcdX=0;
                   lcdY=line;
                   if (line==2) {
@@ -162,22 +151,23 @@ public:
                     clearLine(1);
                     return;
                   }
-                for (int i = 0; i < 16; i++)
-                  {
-                  lcdBuffer[line][i] = ' ';
-                  }
-                  dirtyFlag=true;
+                    for (int i = 0; i < 16; i++)
+                      {
+                      lcdBuffer[line][i] = ' ';
+                      }
                 }
-                void  printDigit(const unsigned int value)
+
+
+                void   BUFFEREDLCD::printDigit(const unsigned int value)
                 {  char thisChar = value + '0';
                    print(thisChar);
                            
                 }
-                void  printDec(const unsigned int value)
+                void   BUFFEREDLCD::printDec(const unsigned int value)
                 {
                   printDec(value,3);
                 }
-                            void  printDec(const unsigned long value, const unsigned char precision)
+                            void  BUFFEREDLCD::printDec(const unsigned long value, const unsigned char precision)
                             { // OR WRITE DEC?
                               unsigned long temp1;
                               unsigned char temp2, i;
@@ -208,7 +198,7 @@ public:
                                 print(&decBuffer[i]);
                             }
             
-                            void  printHex(byte value)
+                            void   BUFFEREDLCD::printHex(byte value)
                             { // basedk to 7.5 to get a working one
                               char temp;
                               temp = value >> 4;
@@ -227,23 +217,20 @@ public:
                               //  lcdLib.print (temp);
                             }
             
-              
-#pragma endregion 
-#pragma region bufferFlush
-      void commitBufferTop()
+      void BUFFEREDLCD::commitBufferTop()
       {
         lcdLib.setCursor(0, 0);
         for (int i = 0; i < 16; i++)
           lcdLib.print(lcdBuffer[0][i]);
       }
-      void commitBufferBottom()
+      void BUFFEREDLCD::commitBufferBottom()
       {
         lcdLib.setCursor(0, 1);
         for (int i = 0; i < 16; i++)
           lcdLib.print(lcdBuffer[1][i]);
       }
 
-      void commitBuffer()
+      void BUFFEREDLCD::commitBuffer()
       {
         lcdLib.setCursor(0, 0);
         for (int i = 0; i < 16; i++)
@@ -253,9 +240,7 @@ public:
           lcdLib.print(lcdBuffer[1][i]);
         dirtyFlag=false;
       }
-#pragma endregion 
-      
-#pragma region customChars
+
                 
               byte char7[8] = {
                   B11111,
@@ -323,7 +308,7 @@ public:
                   B01110,
               };
 
-              void loadCustomChars()
+              void BUFFEREDLCD::loadCustomChars()
               {
                 lcdLib.newCustomChar(0, char1);
                 lcdLib.newCustomChar(1, char2);
@@ -333,46 +318,45 @@ public:
                 lcdLib.newCustomChar(5, char6);
                 lcdLib.newCustomChar(6, char7);
               }
-              void delayNextLcdRefreshBottom(int miliseconds)
+              void BUFFEREDLCD::delayNextLcdRefreshBottom(int miliseconds)
               {
                 nextLcdRedrawBottomTime=millis()+miliseconds;
               }
-              void delayNextLcdRefreshTop(int miliseconds)
+              void BUFFEREDLCD::delayNextLcdRefreshTop(int miliseconds)
               {
                 nextLcdRedrawTopTime=millis()+miliseconds;
               }
-              void delayNextLcdRefresh(int miliseconds)
+              void BUFFEREDLCD::delayNextLcdRefresh(int miliseconds)
               {
                 delayNextLcdRefreshTop(miliseconds);
                 delayNextLcdRefreshBottom(miliseconds);
              
               }
 
-              void checkIfLcdNeedsUpdate()
-              { 
-                unsigned long currentMillis= millis();
-              
-                 if (/*requestLCDredraw &&*/ currentMillis>nextLcdRedrawTopTime)
+
+              void  BUFFEREDLCD::checkIfNeedsUpdate()
+              { if (/*requestLCDredraw &&*/ millis()>nextFullRedrawTime)
+                {
+                  DrawLayout();
+                  lcd.commitBuffer();
+                } else
+                {
+                 if (/*requestLCDredraw &&*/ millis()>nextLcdRedrawTopTime)
                   {
-                   nextLcdRedrawTopTime=currentMillis+LCD_REFRESH_LAZY;
-                  commitBufferTop();
+                   nextLcdRedrawTopTime=millis()+LCD_REFRESH_LAZY;
+                   lcd.commitBufferTop();
                    requestLCDredraw=false;
-                  } 
-                 if (/*requestLCDredraw &&*/ currentMillis>nextLcdRedrawBottomTime)
+                   Serial.print("redrawn\n");
+                  }
+                 if (/*requestLCDredraw &&*/ millis()>nextLcdRedrawBottomTime)
                   {
-                   nextLcdRedrawBottomTime=currentMillis+LCD_REFRESH_FAST;
-                   commitBufferBottom();
+                   nextLcdRedrawBottomTime=millis()+LCD_REFRESH_FAST;
+                   lcd.commitBufferBottom();
                    requestLCDredraw=false;
                   }
                 
-               
+                }  
               }
-
-
-#pragma endregion             
-
-};
-BUFFEREDLCD lcd;
 
 // http://www.stefanomanni.it/arduino/lib4lcd/
 //#include "lib4LCD.h"
@@ -557,18 +541,6 @@ void lib4LCD::enablePinPulse()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 #ifndef NO_DEMO_CONTENT
 void PlayIntroSequece()
 {
@@ -591,106 +563,5 @@ void PlayIntroSequece()
     lcd.printCustom(0);
     lcd.commitBuffer();
     delay(1000);
-}
-
-
-void setup()
-{
-  
-    Serial.begin(9600); // MIDI Baud
-      Serial.write("\nAwake after restart");
-      PlayIntroSequece();
-      delay(100);
-    }
-
-
-int demoStage;
-void  drawFrame(int i){
-
-
-    switch (i)
-    {
-      case 0:
-
-      for (int i=0;i<25;i++)
-      {
-          delay(150);
-          lcd.setCursor(0, 1);
-          for (int k=0;k<16;k++)
-            lcd.printCustom((i+k)%7);
-          lcd.commitBufferBottom();
-      }
-   
-        case 1:
-                 lcd.clearLine(0);
-                 lcd.print("helo line 1");
-
-        break;
-        case 2:
-                    lcd.clearLine(1);
-                    lcd.print("helo line 2");
-        
-       break;
-        case 3:
-        for (int i=60;i<=255;i+=5)
-
-        {
-
-                lcd.clearLine(0);
-                lcd.print("hex: ");
-                lcd.printHex(i);
-                lcd.commitBufferTop();
-                delay(80);
-                
-        }
-        break;
-               case 4:
-               for (int i=100;i<=255;i+=5)
-               {
-                       lcd.clearLine(1);
-                       lcd.print("dec: ");
-                       lcd.printDec(i);
-                       lcd.commitBufferBottom();
-                       delay(80);
-               }
-            break;
-            case 5:
-            for (int i=0;i<20;i+=7)
-            {
-                    lcd.printTo((byte)random(0,16),(byte)random(0,2),"#");
-                    lcd.commitBuffer();
-                    delay(100);
-            }
-         break;
-
-         case 6:
-         lcd.clearLine(2);
-         for (int i=0;i<255;i+=7)
-         {
-              lcd.setCursor(4,0);
-              lcd.printDec(i*180,56);
-                 lcd.commitBuffer();
-                 delay(100);
-         }
-      break;
-         default :
-              demoStage=-1;
-       
-
-    }
-    lcd.delayNextLcdRefresh(LCD_REFRESH_FAST);
-
-}
-unsigned long nextDemoFrame;
-
-void loop()
-{
-    if (millis()>nextDemoFrame)
-    {
-        drawFrame(demoStage);
-        demoStage++;
-        nextDemoFrame=millis()+1000;
-    }
-    lcd.checkIfLcdNeedsUpdate();
 }
 #endif

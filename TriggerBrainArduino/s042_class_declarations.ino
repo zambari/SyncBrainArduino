@@ -1,5 +1,10 @@
 
+#define BAUD_MIDI 31250
+#define BAUD_USART 9600
 
+
+#define USE_MIDI
+//#define USE_USB
 
 ////////////////////////////////////////////////////////////
 /// Interface Layout
@@ -30,6 +35,7 @@ public:
   uint16_t subPageCount;
   uint16_t thisPageIndex;
   bool wantsSerial;
+            bool hasFocus;
              //  LinkedList<PageView *> *subPages ;//= new LinkedList<PageView *>();
               //   PageView *activeSubPage;
                   // CUSTOMIZABLE BEGIN
@@ -38,12 +44,17 @@ public:
                  virtual char *GetLabel() ;
                  virtual PageView *GetSubpage(int i) ;
                  virtual void populateSubPages() ;    
+                 virtual void OnGotFocus();
+                 virtual void OnLostFocus();
                  virtual void OnClockPulse();
                  virtual void OnQuarterNote();
                  virtual int GetSubpageCount() ;
                  virtual void OnSerial(char c);
                 // use this for interface
-                virtual void OnButtonPress(int buttonNr);
+                virtual void OnButtonPress(int buttonNr)
+                {
+                  Serial.print("brm[rs");
+                }
               
                 // CUSTOMIZABLE END
 
@@ -58,7 +69,6 @@ public:
                     virtual bool handleRight();
 
                     virtual bool handleLeft();
-                    virtual void handleButton(int buttnr);
 
 };
 
@@ -75,11 +85,7 @@ public:
 #define MIDI_CLOCK 0xF8
 #define BUFSIZE 30
 #define BUFSIZE64 45
-#define BAUD_MIDI 31250
-#define BAUD_USART 9600
 
-
-#define USE_BAUD BAUD_MIDI
 #define MIDI_ACTIVE_UPDATE_TIME 500
 
 #include <LinkedList.h>
@@ -94,7 +100,7 @@ long nextClk;
 /// SYSEX TRANSMIT BEGIN
 /// a library maybe
 
-class SysexTransmit{
+class SerialTransmit{
 uint8_t bufferRaw[BUFSIZE];
 uint8_t bufferBase64[BUFSIZE64];
 uint8_t recieveIndex;
@@ -108,14 +114,62 @@ uint8_t recieveIndex;
  void  handleCC(char thisChar);  // need to escape character
    
 };
-SysexTransmit transmit;
+SerialTransmit transmit;
 
 ////////////////////////////////////////////////////////////
 /// LCD
 ////////////////////////////////////////////////////////////
 
 
+class BUFFEREDLCD
+{
+private:
+  
+unsigned long nextLcdRedrawBottomTime;
+unsigned long nextLcdRedrawTopTime;
 
+  char decBuffer[7] = {0,0,0,0,0,0,0};
+  char decFill = '0';
+public:unsigned long nextFullRedrawTime;
+
+                byte lcdBuffer[2][16] = {
+                    {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '+', '-', '+', '-'},
+                    {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}};
+  
+                   /* void write(char c)
+                    {
+                      if (lcdX>=16) return;
+                  
+                    }
+                    */
+               
+                bool dirtyFlag;
+                uint8_t lcdX; //carret
+                uint8_t lcdY;
+                void loadCustomChars();
+             //   void setCursorX(uint8_t x);
+                void setCursor(uint8_t x, uint8_t y);
+                void printTo(byte x, byte y, char printString[]);
+                void setDirty();
+                void print(char print);
+                void print(char * printString);
+                void printCustom(byte znak);
+                void clearLine(byte line);
+                void printDigit(const unsigned int value);
+                void printDec(const unsigned int value);
+                void printDec(const unsigned long value, const unsigned char precision);
+                void printHex(byte value);
+                void delayNextLcdRefreshBottom(int miliseconds);
+                void delayNextLcdRefreshTop(int miliseconds);
+                void delayNextLcdRefresh(int miliseconds);
+                void checkIfNeedsUpdate() ;
+                void commitBufferTop();
+                void commitBufferBottom();
+                void commitBuffer();      
+
+
+};
+BUFFEREDLCD lcd;
 
 
 ////////////////////////////////////////////////////////////
@@ -156,8 +210,8 @@ class Shift
 
 unsigned long nextButtonScan;
 unsigned long nextLedPush;
-int lastInterfaceRead=0;
-int interfaceRead;
+unsigned int  lastInterfaceRead=0;
+unsigned int interfaceRead;
 public:
 
   bool leds[SERIAL_LED_COUNT];
@@ -170,8 +224,8 @@ public:
   void ledSet(uint8_t ledNR,bool val);
   bool ledGet(uint8_t ledNR);
   void checkInterface();
-  void newButtonReadState();
+  void newButtonReadState(unsigned int state);
   void setupShift();
-
+  void  ledReset();
 };
 Shift shift;
