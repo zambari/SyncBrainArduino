@@ -1,0 +1,5 @@
+{
+    "board": "arduino:avr:uno",
+    "sketch": "SyncBrainArudinoProject.ino",
+    "port": "/dev/cu.usbmodem1d1111"
+}

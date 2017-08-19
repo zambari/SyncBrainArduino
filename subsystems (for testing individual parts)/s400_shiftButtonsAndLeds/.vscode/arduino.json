@@ -1,0 +1,5 @@
+{
+    "port": "/dev/cu.usbmodem1d1111",
+    "board": "arduino:avr:uno",
+    "sketch": "s400_shiftButtonsAndLeds.ino"
+}

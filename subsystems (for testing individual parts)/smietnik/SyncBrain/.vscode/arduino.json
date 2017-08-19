@@ -1,0 +1,5 @@
+{
+    "board": "arduino:avr:uno",
+    "sketch": "SyncBrain.ino",
+    "port": "COM3"
+}
