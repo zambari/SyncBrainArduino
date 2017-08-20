@@ -32,7 +32,7 @@ void setup()
     
     setUpPages();
     
-    
+
     
     
     /*
@@ -45,9 +45,31 @@ Serial.begin(BAUD_USART);
    //   Serial.write("\n+++\n\n");
      /// PlayIntroSequece();
      //Serial.begin(38400);
+     Serial.begin(9600);
+     Serial.print("n\n\n\n");
+     delay(100);
+     Serial.print("o hi\n\n");
+     delay(100);
+     
+     Serial.print("\n\n\nH heres us in 9600 baud, if you can read this, you have your terminal baud at 9600\n---\n\n");
+     delay(100);
+     Serial.begin(38400);
+     delay(100);
+     Serial.print("\n\n\n 38400 baud is too high \n\n");
+     delay(100);
+    
      Serial.begin(31250);
+     delay(100);
+     Serial.print("\nGREAT NEWS Ifyou can read this, you terminal is set correctly to at 31250 baud rate required by midin-. this is string is longer than the previous oene--\n\n");
+     delay(100);
+     Serial.begin(9600);
+     Serial.print("\n\n\^ that was a reality check - heres us at 9600 again, if you saw the above sentence as some noise you are reading at a wrong baud and now lets have some midi clock shall we? ");
+     Serial.print("\n\n\n");
      //  Set MIDI baud rate:
-  //   Serial1.begin(31250);
+     delay(200);
+     Serial.begin(31250);
+     delay(200);
+     Serial.print(MIDI_START);
 
 
         delay(100);
@@ -72,9 +94,9 @@ void _sendClockPulse()
           return;
       }  clockCounter=0;
         pulseCount++;
-
-        #ifdef USE_MIDI
         Serial.write(MIDI_CLOCK);
+        #ifdef USE_MIDI
+      
         //Serial.write((int)0x90);
         //Serial.write((int)0x20);
         //Serial.write((int)0x40);
@@ -100,7 +122,7 @@ void checkSerial()
 {
    
   while (Serial.available()) 
-  { byte b=Serial.read();
+  { byte b=Serial.2read();
       transmit.handleRpc(b);
 
         shift.statusledToggle();

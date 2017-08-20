@@ -1,8 +1,6 @@
 
 #include <TimerOne.h>
-#define CLOCKS_PER_BEAT 24
-#define NOTE_OFF 0x80
-#define NOTE_ON 0x90
+
 class ViewTrig : public PageView
 {
   
@@ -67,7 +65,7 @@ public:
 bool steps[8];
 
   
- int myStep;
+ int myStep=-1;
     Page_BPM()
     {
       Timer1.initialize(1000);
@@ -91,9 +89,10 @@ bool steps[8];
 
         if (stepNr==myStep)
         {
-          Serial.write(NOTE_ON);
+         Serial.write(NOTE_ON);
           Serial.write(0x18 );
           Serial.write(0x05 );
+      Serial.print("fUCKING SNARE PLEASE");
           shift.statusledToggle();
         }
    /*     if (stepNr==myStep+1)
@@ -129,14 +128,16 @@ bool steps[8];
         Timer1.setPeriod(interval);
         Timer1.resume();
        // Timer1.attachInterrupt(sendClockPulse);
-        haltUpdates=false;
+        haltUpdates=false; 
  
     }
       void OnButtonPress(int buttonNr) override
      {
        Serial.print("onpress");   
       if (buttonNr<8)
-      {myStep=buttonNr;
+      { 
+        if (myStep==buttonNr) myStep=-1; else
+        myStep=buttonNr;
         shift.ledReset();
       //int b=buttonNr-4;
       //clockDivisor+=b*10;

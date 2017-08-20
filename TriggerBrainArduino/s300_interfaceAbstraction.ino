@@ -164,12 +164,12 @@ void OnNavRight()
 void OnPlayPress()
 {
 
-       Serial.write(0xFA); 
+       Serial.write(MIDI_PLAY); 
 }
 
 void OnStopPress()
 {  
-  Serial.write(0xFA); 
+  Serial.write(MIDI_STOP); 
 }
 
 void OnTempoUp()

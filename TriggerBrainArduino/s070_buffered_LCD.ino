@@ -346,7 +346,6 @@ public:
                    nextLcdRedrawTopTime=millis()+LCD_REFRESH_LAZY;
                    lcd.commitBufferTop();
                    requestLCDredraw=false;
-                   Serial.print("redrawn\n");
                   }
                  if (/*requestLCDredraw &&*/ millis()>nextLcdRedrawBottomTime)
                   {
