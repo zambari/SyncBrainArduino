@@ -1,6 +1,28 @@
 
 #include <TimerOne.h>
 
+
+int dividedCounter;
+void distributeClockToPages();
+void sendClockPulse()
+{if (isRunning)
+  {
+    //  Serial1.write(MIDI_CLOCK);
+      Serial2.write(MIDI_CLOCK);
+    //  Serial3.write(MIDI_CLOCK);
+      pulseCount++;
+
+      if (pulseCount%6==0)
+      {
+        quarterNote++;
+        pulse=true;
+      }
+    } 
+    //  pulse=true;
+}
+
+
+
 class ViewTrig : public PageView
 {
   
@@ -18,8 +40,6 @@ public:
          lcd.clearLine(1);
 
          lcd.printDec(bpm);
-         lcd.print("  ");
-         lcd.printDec(clockDivisor,2);
          lcd.print("  ");
          lcd.printDec(pulseCount,4);
     }
@@ -40,10 +60,8 @@ public:
      void  PrintContent( ) override
      {
          lcd.clearLine(1);
-
-         lcd.printDec(bpm);
-         lcd.print(" ");
-         lcd.printDec(clockDivisor,2);
+         lcd.print("BPM ");
+         lcd.printDec(bpmDec);
          lcd.print(" ");
          lcd.printDec(pulseCount,4);
          lcd.print(" ");
@@ -58,9 +76,36 @@ long calculateIntervalMicroSecs(int bpm) {
 
 bool haltUpdates=false;
 
+
+////
+
 class Page_BPM : public PageBase
 { 
 public:
+
+
+  void Play()
+  {
+  
+    isRunning=true;
+    sendMidi(MIDI_PLAY); 
+  }
+  
+  void Stop()
+  { 
+    isRunning=false;
+    sendMidi(MIDI_STOP); 
+  }
+  
+  void updateBpm(int newBpm) {
+    // Update the timer
+    bpm=newBpm;
+    bpmDec=bpm/10;
+    long interval = calculateIntervalMicroSecs(bpm);
+    Timer1.setPeriod(interval);
+  
+  }
+  
 
 bool steps[8];
 
@@ -68,38 +113,51 @@ bool steps[8];
  int myStep=-1;
     Page_BPM()
     {
-      Timer1.initialize(1000);
-      setBPM(bpm);
-     Timer1.attachInterrupt(sendClockPulse);
+     // Timer1.initialize(1000);
+     // updateBpm(bpm);
+      
+    //  Timer1.attachInterrupt(sendClockPulse);
     //  Serial.write("bpom tra"+bpm);
     }
      ViewBpm v;
 
      bool handleRight() override
      {
-      clockDivisor+=1;
-      //setBPM(bpm+1);
+     // clockDivisor+=1;
+     // setBPM(bpm+10);
+      updateBpm(bpm+100);
+      debug("\nupdated bpm ");
+       return true;
+     }
+
+     virtual bool handleLeft()override
+     {
+     updateBpm(bpm-100);
+     debug("\nupdated bpm ");
+      //clockDivisor--;
        return true;
      }
      void OnQuarterNote() override
-     {
-       stepNr++;
+     { requestLCDredraw=true;
+       
+      
+      stepNr++;
        if (stepNr>=8) stepNr=0;
 
 
         if (stepNr==myStep)
         {
-         Serial.write(NOTE_ON);
-          Serial.write(0x18 );
-          Serial.write(0x05 );
-      Serial.print("fUCKING SNARE PLEASE");
+         sendMidi(NOTE_ON);
+         sendMidi(0x18 );
+         sendMidi(0x05 );
+      debug("fUCKING SNARE PLEASE");
           shift.statusledToggle();
         }
    /*     if (stepNr==myStep+1)
         {
           Serial.print(NOTE_OFF);
           Serial.print(0x40);
-          Serial.print(0);
+          debug(0);
         }*/
 
        shift.ledReset();
@@ -112,17 +170,17 @@ bool steps[8];
          shift.ledSet(i,false);
        }
        
-       //if (hasFocus)
+       //if (isActive)
        //  activeSubPage->PrintContent();
-        // lcd.commitBuffer();
+        // lcd.pushBuffer();
  
      }
-    void setBPM(int newbpm)
-    { //Serial.print("\n setting bpm \m");   
+  /*  void setBPM(int newbpm)
+    { //debug("\n setting bpm \m");   
        bpm=newbpm; 
         long interval = calculateIntervalMicroSecs(bpm);
-        Serial.print("\n new bpm ");
-        Serial.print(interval);
+        debug("\n new bpm ");
+        debug(interval);
         haltUpdates=true;
     Timer1.stop();
         Timer1.setPeriod(interval);
@@ -130,10 +188,10 @@ bool steps[8];
        // Timer1.attachInterrupt(sendClockPulse);
         haltUpdates=false; 
  
-    }
+    }*/
       void OnButtonPress(int buttonNr) override
      {
-       Serial.print("onpress");   
+       debug("onpress");   
       if (buttonNr<8)
       { 
         if (myStep==buttonNr) myStep=-1; else
@@ -147,12 +205,7 @@ bool steps[8];
 
       // activeSubPage->OnButtonPress(buttonNr);
      }
-     virtual bool handleLeft()override
-     {
-      //setBPM(bpm-1);
-      clockDivisor--;
-       return true;
-     }
+
   void populateSubPages() override 
  {   
         subPages->add(&v);

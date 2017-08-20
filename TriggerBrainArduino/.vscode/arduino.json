@@ -1,6 +1,6 @@
 {
     "board": "arduino:avr:mega",
     "sketch": "TriggerBrainArduino.ino",
-    "port": "/dev/cu.usbmodem1a1221",
+    "port": "/dev/cu.usbmodem1d1131",
     "configuration": "cpu=atmega2560"
 }

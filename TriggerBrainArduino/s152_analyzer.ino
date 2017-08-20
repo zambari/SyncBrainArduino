@@ -1,6 +1,8 @@
 #include <TimerOne.h>
 #define CLOCKS_PER_BEAT 24
 byte midiFrame[5];
+bool d;
+int rcvCnt;
 
 class ViewAna : public PageView
 {
@@ -15,8 +17,13 @@ public:
      void  PrintContent( ) override
      {
          lcd.clearLine(1);
-         lcd.print("m ");
-         lcd.printHex(midiFrame[0]);
+         if (d)
+         lcd.print("m ");   
+         else
+         lcd.print("M ");   
+          lcd.printHex(rcvCnt);
+          lcd.print("-");   
+          lcd.printHex(midiFrame[0]);
    
          lcd.printHex(midiFrame[1]);
   
@@ -35,27 +42,27 @@ public:
 
     ViewAna v=ViewAna();
     int nextIndex=0;
+
     void OnSerial(char c) override
-    {  if (c&B10000000) nextIndex=0;
+    {  
+      //  rc
+      //  if (isActive)
+      d=!d;
+        if (c&B10000000) nextIndex=0;
         midiFrame[nextIndex]=c;
         nextIndex++;
      
-        activeSubPage->PrintContent();
-        lcd.commitBuffer();
-       
+        //activeSubPage->PrintContent();
+       requestLCDredraw=true;
         
         if (nextIndex>3)
         { nextIndex=0;
             //lcd.setCursor(0,1);
             
         }
+    
     }
-    void OnQuarterNote() override
-    {if (hasFocus)
-        activeSubPage->PrintContent();
-       // lcd.commitBuffer();
-
-    }
+  
   void populateSubPages() override 
  {          wantsNoters=true;
              subPages->add(&v);

@@ -19,17 +19,7 @@
 #define LCD_REFRESH_FAST 140
 #define NO_DEMO_CONTENT 
 
-
-long nextLcdRedrawBottomTime;
-long nextLcdRedrawTopTime;
-int quarterNote;
-int pulseCount;
-bool requestLCDredraw=false;
-
-byte lcdX=0;
-byte lcdY=0;
-byte pageCount = 3;
-int activePageIndex=0;
+bool pulse;
 
 void Reset() // Restarts program from beginning but does not reset the peripherals and registers
 {

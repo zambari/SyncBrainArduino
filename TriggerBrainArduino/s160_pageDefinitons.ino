@@ -34,15 +34,15 @@ class Page_Diag : public PageBase
 {   
    SubPageDiag a;
    
-   SubPageDiag b;
-   SubPageDiag c;
+   SubPageDiag bsd;
+   SubPageDiag csd;
 public:
 
  void populateSubPages() override 
 {  
        subPages->add(&a);
-       subPages->add(&b);
-       subPages->add(&c);
+       subPages->add(&bsd);
+       subPages->add(&csd);
      
            subPageIndex = 0;
            subPageCount = subPages->size();

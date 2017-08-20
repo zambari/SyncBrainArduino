@@ -28,7 +28,7 @@ void ReloadSub()
         lcd.print("   ");
         lcd.clearLine(1);
       activePage->activeSubPage->PrintContent();
-        lcd.commitBuffer();
+        lcd.pushBuffer();
      //   nextLcdRedrawTopTime=millis()+LCD_REFRESH_LAZY*2; // but we do not refresh it for now
    //     nextLcdRedrawBottomTime=millis()+LCD_REFRESH_LAZY;
       delayLcdRefresh(LCD_REFRESH_LAZY);
@@ -53,7 +53,7 @@ void ReloadSubFailed(int reason)
             lcd.print(">- final subpage");
            else  
            lcd.print("reason unkonwon ");
-        lcd.commitBufferTop();
+        lcd.pushBufferTop();
 
         nextLcdRedrawTopTime=millis()+LCD_REFRESH_LAZY*2; // but we do not refresh it for now
         nextLcdRedrawBottomTime=millis()+LCD_REFRESH_LAZY;
@@ -61,21 +61,31 @@ void ReloadSubFailed(int reason)
         requestLCDredraw=true;
 
 }
+void DrawLayoutTop()
+{    
+  lcd.clearLine(0);
+  lcd.setCursor(0,0);
+  lcd. printDigit(activePageIndex+1);
+  lcd.print(':');
+  lcd. printDigit(activePage->subPageIndex+1);
+  lcd.print(' ');
+  lcd.print(activePage->GetLabel());
+  lcd.print(':');
+  lcd.print(activePage->activeSubPage->GetLabel());   
+  lcd.print("       ");
+}
+void DrawLayoutBottom()
+{   
+  
+  lcd.clearLine(1);
+  activePage->activeSubPage->PrintContent();
+
+}
 void DrawLayout()
 {    
   lcd.nextFullRedrawTime+=+LCD_REFRESH_LAZY;//
-     lcd.clearLine(0);
-        lcd.setCursor(0,0);
-        lcd. printDigit(activePageIndex+1);
-        lcd.print(':');
-        lcd. printDigit(activePage->subPageIndex+1);
-        lcd.print(' ');
-        lcd.print(activePage->GetLabel());
-        lcd.print(':');
-        lcd.print(activePage->activeSubPage->GetLabel());   
-        lcd.print("       ");
-        lcd.clearLine(1);
-        activePage->activeSubPage->PrintContent();
+  DrawLayoutTop();
+       
      //   lcd.print(activePage->activeSubPage->getContent());
 
 }
@@ -120,12 +130,12 @@ void ReloadPage()
         lcd.print("       ");
 
     
-     //   lcd.commitBuffer();
-        lcd.commitBuffer();
+     //   lcd.pushBuffer();
+        lcd.pushBuffer();
        nextLcdRedrawTopTime=millis()+LCD_REFRESH_LAZY; // but we do not refresh it for now
         nextLcdRedrawBottomTime=millis()+LCD_REFRESH_LAZY*2;*/
     DrawLayout();
-    lcd.commitBuffer();
+    lcd.pushBuffer();
     //byte count=0;
         
         // instead :
@@ -136,7 +146,7 @@ void ReloadPage()
 
 
 void OnNextPage()
-{   Serial.write("\nPAGEDN\n");
+{   debug("\nPAGEDN\n");
         activePageIndex++;
         if (activePageIndex >= pageCount)   activePageIndex =0;
      
@@ -156,30 +166,32 @@ void OnNavLeft()
 }
 
 void OnNavRight()
-{   Serial.write("\nnext subpage\n");
+{   debug("\nnext subpage\n");
        if (   activePage->handleRight())    DrawLayout();// ReloadSub();
    //      else ReloadSubFailed(2);
 }
 
 void OnPlayPress()
 {
-
-       Serial.write(MIDI_PLAY); 
+  clock.Play();
+  isRunning=true;
+      sendMidi(MIDI_PLAY); 
 }
 
 void OnStopPress()
-{  
-  Serial.write(MIDI_STOP); 
+{ clock.Stop(); 
+  isRunning=false;
+  sendMidi(MIDI_STOP); 
 }
 
 void OnTempoUp()
 {  
-Serial.write("\nDn\n");      
+debug("\nDn\n");      
 }
 
 void OnTempoDn()
 {  
-      Serial.write("\nup\n");
+  debug("\nup\n");
 }
 void OnButtonPress(uint8_t butNr)
 {

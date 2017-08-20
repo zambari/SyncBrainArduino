@@ -40,12 +40,12 @@ void  SerialTransmit::RunCommand(int cmd,  char* blobPointer, int decodedLen)
         case cmdRestart: Restart();
         case cmdLCDLine1:
             lcd.printTo(0,0,blobPointer);
-            lcd.commitBuffer();
+            lcd.pushBuffer();
             //TransmitBlob("ala ma ko");  // here you can light a LED or whaevert
         break;
         case cmdLCDLine2:
             lcd.printTo(0,1,blobPointer);
-            lcd.commitBuffer();
+            lcd.pushBuffer();
         break;
         case cmdShowLeds:
         if (decodedLen!=16) 
@@ -77,7 +77,7 @@ void  SerialTransmit::OnRecieveBlob(  char* blobPointer, int decodedLen)        
 }
 void handleCC(byte value)
 { 
-  clock.setBPM(value);
+  clock.updateBpm(value);
   ReloadPage();
 }
 byte cc_state;
@@ -139,3 +139,44 @@ if (cc_state==2)
       #endif
     }
   }
+
+
+
+  //////
+
+
+  void distributeSerial(char r)
+  {
+  
+  //  for (int i = 0; i <pageCount; i++)
+           //   pages->get(i)->OnSerial(b);
+  }
+  
+
+  
+void checkSerial()
+{
+
+    while (Serial2.available()) 
+    { byte midiByte=Serial2.read();
+        rcvCnt++;
+        if (rcvCnt>254) rcvCnt=0;
+         debug(midiByte);
+      ////  debug(b);
+       // debug("\n");
+     //   transmit.handleRpc(b);
+     //   Serial1.write(b);   // loopback
+    analyzer.OnSerial(midiByte);
+    shift.statusledToggle();
+         
+      }
+  while (Serial.available()) 
+  { byte dbgByte=Serial.read();
+         transmit.handleRpc(b);
+   // shift.statusledToggle();
+       //  for (int i = 0; i <pageCount; i++)
+       //   pages->get(i)->OnSerial(b);
+    }
+    
+    //  transmit.handleCC(b);90
+}

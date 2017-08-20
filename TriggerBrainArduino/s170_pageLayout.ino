@@ -7,10 +7,10 @@ Page_Diag b = Page_Diag();
 void setUpPages()
 {
     
-  pages->add(&clock);
-  pages->add(&analyzer);
-  pages->add(&a);
 
+  pages->add(&analyzer);
+  pages->add(&clock);
+  pages->add(&a);
   pages->add(&b);
   /*
   D d = D();
@@ -29,22 +29,22 @@ void setUpPages()
 */
         pageCount=pages->size();
         activePage=pages->get(0);
-        Serial.print("\ncreated \n\n");
-        Serial.print(activePage->GetLabel());
+        debug("\ncreated \n\n");
+        debug(activePage->GetLabel());
 
         for (int i = 0; i <pageCount; i++)
         {      pages->get(i)->populateSubPages();
-            Serial.print("\n other pages:");
-            Serial.print(pages->get(i)->GetLabel());  
-            Serial.print(" has subs : ");
+            debug("\n other pages:");
+            debug(pages->get(i)->GetLabel());  
+            debug(" has subs : ");
       
-            Serial.print( pages->get(i)->GetSubpageCount() ); 
-            Serial.print(" has subs : ");
+            debug( pages->get(i)->GetSubpageCount() ); 
+            debug(" has subs : ");
             
-                  Serial.print( pages->get(i)->subPageCount ); 
-            Serial.print(" fisrt sub is: ");
-            Serial.print( pages->get(i)->GetSubpage(0)->GetLabel() ); 
-            Serial.print(" \n ");
+                  debug( pages->get(i)->subPageCount ); 
+            debug(" fisrt sub is: ");
+            debug( pages->get(i)->GetSubpage(0)->GetLabel() ); 
+            debug(" \n ");
           // =pages->get(i)->subPages->size();
 
 
@@ -52,24 +52,24 @@ void setUpPages()
         }
         activePage->GetSubpage(0)->PrintContent(); //
         delay(300);
-        Serial.print("lested \n");
+        debug("lested \n");
 
    
-        Serial.print("listing \n");
+        debug("listing \n");
   
   for (int i = 0; i < activePage->GetSubpageCount() ; i++)
   {
-    Serial.print("\n subpage ");
-    Serial.print(i);
-      Serial.print(" - ");
+    debug("\n subpage ");
+    debug(i);
+      debug(" - ");
     
     lcd.clearLine(0);
   
 
-    lcd.commitBuffer();
+    lcd.pushBuffer();
 
     
   }
   delay(300);
-  Serial.print("lested \n");
+  debug("lested \n");
 }

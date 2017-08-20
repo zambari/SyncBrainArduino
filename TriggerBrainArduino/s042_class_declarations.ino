@@ -35,7 +35,7 @@ public:
   uint16_t subPageCount;
   uint16_t thisPageIndex;
   bool wantsSerial;
-            bool hasFocus;
+            bool isActive;
              //  LinkedList<PageView *> *subPages ;//= new LinkedList<PageView *>();
               //   PageView *activeSubPage;
                   // CUSTOMIZABLE BEGIN
@@ -53,7 +53,7 @@ public:
                 // use this for interface
                 virtual void OnButtonPress(int buttonNr)
                 {
-                  Serial.print("brm[rs");
+                  debug("brm[rs");
                 }
               
                 // CUSTOMIZABLE END
@@ -163,9 +163,9 @@ public:unsigned long nextFullRedrawTime;
                 void delayNextLcdRefreshTop(int miliseconds);
                 void delayNextLcdRefresh(int miliseconds);
                 void checkIfNeedsUpdate() ;
-                void commitBufferTop();
-                void commitBufferBottom();
-                void commitBuffer();      
+                void pushBufferTop();
+                void pushBufferBottom();
+                void pushBuffer();      
 
 
 };
@@ -203,18 +203,19 @@ void OnTempoDn(){}*/
 /// Shift
 ////////////////////////////////////////////////////////////
 
-
+#define SERIAL_LED_COUNT 16
+#define SERIAL_LED_OFFSET 15
 class Shift
 { 
- 
 
 unsigned long nextButtonScan;
 unsigned long nextLedPush;
 unsigned int  lastInterfaceRead=0;
 unsigned int interfaceRead;
+bool leds[SERIAL_LED_COUNT];
 public:
 
-  bool leds[SERIAL_LED_COUNT];
+
  // void OnButtonPress(uint8_t butNr);
   void statusledToggle();
   void ledBarSet(uint8_t nr,bool v);

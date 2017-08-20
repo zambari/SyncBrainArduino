@@ -12,35 +12,27 @@ public:
                   return "unnamed";
                 }; // { return "my class"; }
                 bool wantsNoters;
-                virtual void OnSerial(char c)
-              {
 
-              }
-                 virtual void OnClockPulse()
-                {
-                }
-                virtual void OnQuarterNote() 
-                {
-                }
-                virtual void OnButtonPress(int buttonNr)
+
+                /// IMPORTANT METHODS TO OVERLOAD
+                virtual void populateSubPages(){}              // fill in your subpages here
+                virtual void OnQuarterNote() { }               // recieved on next quareter note clock OnClockPulse
+
+                virtual void OnSerial(char c)    {   }         // not implemented
+                virtual void OnClockPulse() { }                // not implemented
+            
+                virtual void OnButtonPress(int buttonNr)       // handles interface reads
                 {
                   activeSubPage->OnButtonPress(buttonNr);
                 }
-               
-                #pragma region semiPrivate
-                // list of subpages
-                #pragma endregion 
-                virtual void OnGotFocus() { hasFocus=true; }
-                virtual void OnLostFocus(){ hasFocus=false; }
 
-
-                virtual void populateSubPages(){}
+                virtual void OnGotFocus() { isActive=true; }
+                virtual void OnLostFocus(){ isActive=false; }
+              
       
-                  bool setSubPage(int i)
-                    { Serial.print("subp ");
-                
-                          if (i<0||i>=subPageCount)  
-                            return false;
+                 bool setSubPage(int i)
+                 { 
+                       if (i<0||i>=subPageCount)    return false;
                           subPageIndex=i;
                           activeSubPage = subPages->get(subPageIndex);
                           requestLCDredraw = true;

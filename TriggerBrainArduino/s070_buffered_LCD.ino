@@ -1,7 +1,7 @@
 
 #define LCD_REFRESH_LAZY 340
 #define LCD_REFRESH_FAST 90
-
+#define LCD_FULL_REFRESH 3000
 
 
 // ZBR 2017
@@ -13,7 +13,7 @@
 // this is primarly to have control over when does the pushing happen,
 // as we will be operating on tight timings
 // this way it is also simpler to rawing complex screens
-// we can also draw a screen, push it (using lcd.commit)
+// we can also draw a screen, push it (using lcd.push)
 
 // draw another screen, but delay screen refresh, to display notifications etc
 // hardware interfacing is based on lib4LCD with tiny tiny tweaks
@@ -217,21 +217,30 @@ public:
                               //  lcdLib.print (temp);
                             }
             
-      void BUFFEREDLCD::commitBufferTop()
-      {
+      void BUFFEREDLCD::pushBufferTop()
+      {  
         lcdLib.setCursor(0, 0);
         for (int i = 0; i < 16; i++)
           lcdLib.print(lcdBuffer[0][i]);
+          nextFullRedrawTime+=LCD_REFRESH_LAZY;
+          nextLcdRedrawTopTime+=LCD_REFRESH_FAST;
       }
-      void BUFFEREDLCD::commitBufferBottom()
+
+      void BUFFEREDLCD::pushBufferBottom()
       {
         lcdLib.setCursor(0, 1);
         for (int i = 0; i < 16; i++)
           lcdLib.print(lcdBuffer[1][i]);
+          nextLcdRedrawBottomTime+=LCD_REFRESH_FAST;
+          nextFullRedrawTime+=LCD_REFRESH_LAZY;
       }
 
-      void BUFFEREDLCD::commitBuffer()
+      void BUFFEREDLCD::pushBuffer()
       {
+        nextLcdRedrawBottomTime+=LCD_REFRESH_FAST;
+        nextLcdRedrawTopTime+=LCD_REFRESH_FAST;
+        nextFullRedrawTime+=LCD_FULL_REFRESH;
+
         lcdLib.setCursor(0, 0);
         for (int i = 0; i < 16; i++)
           lcdLib.print(lcdBuffer[0][i]);
@@ -333,25 +342,34 @@ public:
              
               }
 
-
               void  BUFFEREDLCD::checkIfNeedsUpdate()
-              { if (/*requestLCDredraw &&*/ millis()>nextFullRedrawTime)
-                {
+              { 
+                unsigned long currentMillis=millis();
+                if (currentMillis>nextFullRedrawTime)
+                {     
                   DrawLayout();
-                  lcd.commitBuffer();
+                  nextFullRedrawTime=currentMillis+LCD_FULL_REFRESH;
+                   nextLcdRedrawTopTime=currentMillis+LCD_REFRESH_LAZY;
+                  
+                  lcd.pushBuffer();
                 } else
                 {
-                 if (/*requestLCDredraw &&*/ millis()>nextLcdRedrawTopTime)
+                 if (/*requestLCDredraw &&*/ currentMillis>nextLcdRedrawTopTime)
                   {
-                   nextLcdRedrawTopTime=millis()+LCD_REFRESH_LAZY;
-                   lcd.commitBufferTop();
+                    if (requestLCDredraw)
+                    { DrawLayout(); requestLCDredraw=false;}
+                   nextLcdRedrawTopTime=currentMillis+LCD_REFRESH_LAZY;
+                   lcd.pushBufferTop();
                    requestLCDredraw=false;
                   }
-                 if (/*requestLCDredraw &&*/ millis()>nextLcdRedrawBottomTime)
+                 if (requestLCDredraw&& currentMillis>nextLcdRedrawBottomTime)
                   {
-                   nextLcdRedrawBottomTime=millis()+LCD_REFRESH_FAST;
-                   lcd.commitBufferBottom();
-                   requestLCDredraw=false;
+                    if (requestLCDredraw)
+                    { DrawLayoutBottom(); requestLCDredraw=false;
+                    }
+                    nextLcdRedrawBottomTime=currentMillis+LCD_REFRESH_FAST;
+                    lcd.pushBufferBottom();
+                     requestLCDredraw=false;
                   }
                 
                 }  
@@ -547,9 +565,9 @@ void PlayIntroSequece()
     lcd.clearLine(2);
 
     lcd.printTo(0, 0, (char *)"Awake");
-    lcd.commitBuffer();
+    lcd.pushBuffer();
     delay(1000);
-    Serial.write("committing buf");
+    Serial.write("pushting buf");
     lcd.printTo(0, 0, (char *)"LCD Buffered");
     lcd.setCursor(0, 1);
     lcd.printCustom(6);
@@ -560,7 +578,7 @@ void PlayIntroSequece()
     lcd.printCustom(1);
     lcd.printCustom(0);
     lcd.printCustom(0);
-    lcd.commitBuffer();
+    lcd.pushBuffer();
     delay(1000);
 }
 #endif
