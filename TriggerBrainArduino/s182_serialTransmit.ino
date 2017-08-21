@@ -172,7 +172,7 @@ void checkSerial()
       }
   while (Serial.available()) 
   { byte dbgByte=Serial.read();
-         transmit.handleRpc(b);
+         transmit.handleRpc(dbgByte);
    // shift.statusledToggle();
        //  for (int i = 0; i <pageCount; i++)
        //   pages->get(i)->OnSerial(b);

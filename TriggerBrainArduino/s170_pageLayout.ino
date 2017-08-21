@@ -1,8 +1,8 @@
 
 
 
-Page_Sys a = Page_Sys();
-Page_Diag b = Page_Diag();
+Page_Sys sys = Page_Sys();
+Page_Diag diag = Page_Diag();
 
 void setUpPages()
 {
@@ -10,8 +10,8 @@ void setUpPages()
 
   pages->add(&analyzer);
   pages->add(&clock);
-  pages->add(&a);
-  pages->add(&b);
+  pages->add(&sys);
+  pages->add(&diag);
   /*
   D d = D();
   B b = B();
